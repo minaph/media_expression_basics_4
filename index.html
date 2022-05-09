@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <!-- <textarea id="input"></textarea>
+        <button id="btn">Exec</button> -->
+        <div id="output">
+        <!-- <script>
+            var btn = document.getElementById("btn");
+            var input = document.getElementById("input");
+            btn.addEventListener("click", function () {
+                const script = input.value;
+                eval(script);
+            });
+        </script> -->
+        <script>
+            // WebSocket 接続を作成
+            const socket = new WebSocket("ws://localhost:8765/web");
+            const output = document.getElementById("output");
+
+            // 接続が開いたときのイベント
+            socket.addEventListener("open", function (event) {
+                socket.send("Hello Server!");
+            });
+
+            // メッセージの待ち受け
+            socket.addEventListener("message", function (event) {
+                console.log("Message from server ", event.data);
+                if (event.data === '{"message":"PING"}') {
+                    socket.send('{"message":"PONG"}');
+                }
+                // output.value = event.data;
+                // event.data.split("\n").forEach(function (line) {
+                //     setSpan(line);
+                // });
+                setSpan(event.data.split("\n")[Math.floor(Math.random()*6)]);
+            });
+
+            // 発生しうるエラーを待ち受けする
+            socket.addEventListener("error", function (event) {
+                console.log("WebSocket error: ", event);
+            });
+
+            function setSpan(val) {
+                const span = document.createElement("span");
+                span.innerText = val;
+                if (output.children.length > 50) {
+                    // [...output.children].slice(0, 300).forEach(function (child) {
+                        output.removeChild(output.children[0]);
+                    // });
+                }
+                output.appendChild(span);
+                span.style.display = "block";
+                const rand = Math.random() * 1000 ;
+                const rand_top = Math.random() * window.innerHeight
+                const rand_right = Math.random() * window.innerWidth;
+                span.style.height = rand + "px";
+                span.style.width = rand + "px";
+                span.style.top = rand_top + "px";
+                span.style.right = rand_right + "px";
+                // span.style.opacity = 0.2;
+                // span.style.opacity = Math.random() * 0.5 + 0.5;
+                span.style.position = "absolute";
+                span.style.fontSize = rand*0.5 + "px";
+            }
+        </script>
+        <style>
+            @keyframes decrease {
+                0% {
+                    opacity: 1;
+                }
+                100% {
+                    opacity: 0;
+                }
+            }
+
+            #output {
+                width: 100%;
+                height: 100%;
+                border: 1px solid #ccc;
+            }
+
+            #output span {
+                animation: decrease 1.5s linear infinite;
+            }
+        </style>
+    </body>
+</html>
